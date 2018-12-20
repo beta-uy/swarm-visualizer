@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  proxy:
+    image: betalabs/nginx-basic-auth-proxy
+    environment:
+      PORT: 80
+      UPSTREAM_URL: http://viz:8080/
+    env_file:
+      - ./secrets.env
+    ports:
+      - 55981:80
+    deploy:
+      labels:
+        - com.docker.aws.lb.arn=arn:aws:acm:us-east-1:181586466228:certificate/9e1ae1c8-cb6e-485c-8ff4-e407fb412c59@HTTPS:55981
+      placement:
+        constraints:
+          - node.role == worker
+  viz:
+    image: dockersamples/visualizer
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+          - node.labels.front_end != true
+
+networks:
+  default:
+    driver: overlay
+
