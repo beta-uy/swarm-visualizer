@@ -1,18 +1,18 @@
-version: "3"
+version: "3.6"
 
 services:
   proxy:
     image: betalabs/nginx-basic-auth-proxy
     environment:
-      PORT: 80
-      UPSTREAM_URL: http://viz:8080/
-    env_file:
-      - ./secrets.env
+      - BASIC_AUTH_USERNAME=${settings.basic_auth.username}
+      - BASIC_AUTH_PASSWORD=${settings.basic_auth.password}
+      - PORT=80
+      - UPSTREAM_URL=http://viz:8080/
     ports:
-      - 55981:80
+      - ${settings.port}:80
     deploy:
       labels:
-        - com.docker.aws.lb.arn=arn:aws:acm:us-east-1:181586466228:certificate/9e1ae1c8-cb6e-485c-8ff4-e407fb412c59@HTTPS:55981
+        - com.docker.aws.lb.arn=${settings.acm_certificate_arn}@HTTPS:${settings.port}
       placement:
         constraints:
           - node.role == worker
@@ -24,7 +24,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-          - node.labels.front_end != true
 
 networks:
   default:

@@ -1,2 +1,2 @@
-secrets.env filter=git-crypt diff=git-crypt
+*.dockerapp/settings/* filter=git-crypt diff=git-crypt
 
